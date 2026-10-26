@@ -1,0 +1,13 @@
+# data folder
+src/data/
+
+# macOS / Windows system files
+.DS_Store
+Thumbs.db
+
+# Python / Jupyter
+__pycache__/
+.ipynb_checkpoints/
+
+# editor settings
+.vscode/
