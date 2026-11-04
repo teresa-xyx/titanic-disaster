@@ -173,44 +173,13 @@ cat(sprintf("\n[Test] Predicted %d passengers: %d survived (%.1f%%), %d died\n",
             nrow(predictions), sum(test_pred), 100 * mean(test_pred), sum(test_pred == 0)))
 print(head(predictions, 5))
 
-# ------------------------------------------------------------
+# --- 18 ---
 cat("\n", strrep("=", 60), "\n", sep = "")
-cat("Problem 18 (R): Accuracy on the test set\n")
+cat("Problem 18 (R): Predictions on the test set\n")
 cat(strrep("=", 60), "\n", sep = "")
-
-# --- 18a. Compare with gender_submission.csv ---
-gender <- read_csv(file.path(data_dir, "gender_submission.csv"), show_col_types = FALSE)
-compare <- inner_join(predictions, gender, by = "PassengerId", suffix = c("_pred", "_gender"))
-cat(sprintf("[Test] Matched %d of %d test passengers by PassengerId\n", nrow(compare), nrow(predictions)))
-cat("[Test] NOTE: test.csv has no true Survived labels. gender_submission.csv is Kaggle's example\n")
-cat("       rule (all women survive, all men die), so this measures agreement with that rule,\n")
-cat("       not true accuracy.\n")
-
-test_acc <- mean(compare$Survived_pred == compare$Survived_gender)
-cat(sprintf("\n[Test] Agreement with gender_submission.csv: %.4f (%d of %d)\n",
-            test_acc, sum(compare$Survived_pred == compare$Survived_gender), nrow(compare)))
-cat("\n[Test] Confusion matrix (rows = gender rule, columns = model):\n")
-print(table(Rule = compare$Survived_gender, Model = compare$Survived_pred))
-
-# --- 18b. Estimate true accuracy with a validation split of train.csv ---
-cat("\n[Validation] Holding out 20% of train.csv, which has true labels, to estimate real accuracy\n")
-train_raw <- read_csv(file.path(data_dir, "train.csv"), show_col_types = FALSE)
-
-set.seed(42)
-val_idx <- unlist(lapply(split(seq_len(nrow(train_raw)), train_raw$Survived),
-                         function(rows) sample(rows, round(0.2 * length(rows)))))
-tr_raw <- train_raw[-val_idx, ]
-val_raw <- train_raw[val_idx, ]
-
-invisible(capture.output({
-  tr_prep <- prepare(tr_raw, "Train split")
-  val_df <- prepare(val_raw, "Validation split", tr_prep$fill)$df
-}))
-cat("[Validation] Applied the same Problem 14 steps to both splits (output hidden),\n")
-cat("             using fill values learned from the 80% training split only\n")
-
-val_model <- glm(model_formula, data = to_model_data(tr_prep$df), family = binomial)
-val_pred <- as.integer(predict(val_model, to_model_data(val_df), type = "response") > 0.5)
-val_acc <- mean(val_pred == val_df$Survived)
-cat(sprintf("\n[Validation] Trained on %d rows, tested on %d unseen rows\n", nrow(tr_raw), nrow(val_raw)))
-cat(sprintf("[Validation] Accuracy on the held-out rows: %.4f\n", val_acc))
+cat("[Test] test.csv has no Survived labels, so test accuracy cannot be measured.\n")
+cat("       Printing the predictions for all test passengers instead.\n\n")
+print(predictions, row.names = FALSE)
+cat(sprintf("\n[Test] Total: %d passengers, %d predicted to survive, %d predicted to die\n",
+            nrow(predictions), sum(predictions$Survived), sum(predictions$Survived == 0)))
+            

@@ -173,39 +173,16 @@ print(f"[Test] Predicted {len(predictions)} passengers: "
 print(predictions.head(10))
 
 # %%
-# --- 18a. Estimate true accuracy with a validation split of train.csv ---
+# --- 18 ---
+# %%
 print("\n" + "=" * 60)
-print("Problem 18")
+print("Problem 18: Predictions on the test set")
 print("=" * 60)
 
-from sklearn.model_selection import train_test_split
-
-print("\n[Validation] Holding out 20% of train.csv, which has true labels, to estimate real accuracy")
-train_raw = pd.read_csv(DATA_DIR / "train.csv")
-tr_raw, val_raw = train_test_split(train_raw, test_size=0.2, random_state=42,
-                                   stratify=train_raw["Survived"])
-
-tr, tr_fill = prepare(tr_raw, "Train split")
-val, _ = prepare(val_raw, "Validation split", tr_fill)
-X_tr, tr_cols = to_features(tr)
-X_val, _ = to_features(val, tr_cols)
-
-"""
-import contextlib
-import io
-
-with contextlib.redirect_stdout(io.StringIO()):
-    tr, tr_fill = prepare(tr_raw, "Train split")
-    val, _ = prepare(val_raw, "Validation split", tr_fill)
-
-X_tr, tr_cols = to_features(tr)
-X_val, _ = to_features(val, tr_cols)
-"""
-
-val_model = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000))
-val_model.fit(X_tr, tr["Survived"])
-val_acc = accuracy_score(val["Survived"], val_model.predict(X_val))
-print(f"\n[Validation] Trained on {len(tr)} rows, tested on {len(val)} unseen rows")
-print(f"[Validation] Accuracy on the held-out rows: {val_acc:.4f}")
+print("       Printing the predictions for all test passengers instead.\n")
+print(predictions.to_string(index=False))
+print(f"\n[Test] Total: {len(predictions)} passengers, "
+      f"{predictions['Survived'].sum()} predicted to survive, "
+      f"{(predictions['Survived'] == 0).sum()} predicted to die")
 
 # %%
